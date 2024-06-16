@@ -25,7 +25,9 @@ int main(int argc, char **argv) {
 
 
     std::cout << "Waiting for a client to connect...\n";
-    connectionHandler.handleClient();
+    while (true){
+        connectionHandler.handleClient();
+    }
     close(connectionHandler.server_fd);
 
     return 0;
