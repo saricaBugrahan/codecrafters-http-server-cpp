@@ -8,11 +8,14 @@ set(CMAKE_CXX_STANDARD 23) # Enable the C++23 standard
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_package(Threads REQUIRED)
+find_package(ZLIB REQUIRED)
 
 add_executable(server ${SOURCE_FILES}
         src/ConnectionHandler.cpp
         include/ConnectionHandler.h
         src/HTTPMessageHandler.cpp
-        include/HTTPMessageHandler.h)
+        include/HTTPMessageHandler.h
+        src/GzipUtils.cpp
+        include/GzipUtils.h)
 
-target_link_libraries(server PRIVATE Threads::Threads)
+target_link_libraries(server PRIVATE Threads::Threads ZLIB::ZLIB)

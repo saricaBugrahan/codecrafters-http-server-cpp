@@ -3,7 +3,7 @@
 //
 
 #include "../include/HTTPMessageHandler.h"
-
+#include "../include/GzipUtils.h"
 const std::string HTTPMessageHandler::HTTP_NOT_FOUND = "HTTP/1.1 404 Not Found\r\n\r\n";
 const std::string HTTPMessageHandler::HTTP_SUCCESS = "HTTP/1.1 200 OK\r\n\r\n";
 const std::string HTTPMessageHandler::CREATED = "HTTP/1.1 201 Created\r\n\r\n";
@@ -13,7 +13,7 @@ std::string HTTPMessageHandler::directory;
 string_vector HTTPMessageHandler::validEncodings = {"gzip", "deflate", "br"};
 
 
-
+//TODO: Rearrange the all structure of the HTTPMessageHandler so that it class will be smooth.
 string_vector HTTPMessageHandler::splitMessageIntoTokens(const std::string &message,const std::string& delim) {
     string_vector tokens;
     std::string token;
@@ -34,25 +34,24 @@ int HTTPMessageHandler::sendMessageRespondToSocket(int socket, std::string buffe
     }
     return 0;
 }
-
+//TODO: rearrange the structure in a struct so that it will not be needed to the indexing.
 void HTTPMessageHandler::handleResponseType(int socket_fd,const string_vector& tokens) {
     string_vector splitRequestLine = splitMessageIntoTokens(tokens[0], " ");
-    for(const std::string& x : tokens){
-        std::cout << "Text: " << x << std::endl;
-    }
     string_vector splitPath = splitMessageIntoTokens(splitRequestLine[1],"/");
     if (splitPath[1].empty()){
         handleSuccesCommand(socket_fd);
     }
     else if(splitPath[1] == "echo" && tokens[2].starts_with("Accept-Encoding:")){
-        std::cout << "İçeri girdi" << std::endl;
         string_vector encoding = splitMessageIntoTokens(tokens[2],"Accept-Encoding: ");
-        std::cout << "encoding: " << encoding[1] << std::endl;
         string_vector encodings = splitMessageIntoTokens(encoding[1],", ");
         std::string validEncoding = getValidEncoding(encodings);
         if (!validEncoding.empty()){
+
+            std::string msg = (gzip_compress(splitPath[2]));
+            std::cout << "Mesaj: "<<splitPath[2] << std::endl;
+            std::cout << "Gzip Mesaj: " << msg << std::endl;
             sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(
-                    validEncoding,"text/plain",HTTP_SUCCESS,true,"1f8b08008c643b6602ff4bcbcf07002165738c03000000"
+                    msg, "text/plain", HTTP_SUCCESS, true, validEncoding
             ));
         }
         else{
@@ -73,8 +72,6 @@ void HTTPMessageHandler::handleResponseType(int socket_fd,const string_vector& t
         handleFileCommand(socket_fd,splitPath);
     }
     else if(splitPath[1] == "files" && splitRequestLine[0] == "POST"){
-        std::cout << "Filename: "<<tokens[4] << std::endl;
-        std::cout << "Message: "<<splitPath[2] << std::endl;
         handleFileWriteCommand(socket_fd, splitPath[2],const_cast<std::string &>(tokens[4]));
     }
 
@@ -91,6 +88,7 @@ void HTTPMessageHandler::handleEchoCommand(int socket_fd, string_vector &tokens)
     sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(tokens[2],TEXT_CONTENT,HTTP_SUCCESS,false,""));
 }
 
+//TODO: fix typo
 void HTTPMessageHandler::handleSuccesCommand(int socket_fd) {
     sendMessageRespondToSocket(socket_fd,HTTP_SUCCESS);
 }
@@ -109,21 +107,19 @@ void HTTPMessageHandler::handleFileCommand(int socket_fd, string_vector &tokens)
         handleErrorCommand(socket_fd);
         return;
     }
-
     std::string content;
     std::string line;
     while (std::getline(ifs, line)) {
         content += line + '\n';
     }
-
     if (!content.empty() && content.back() == '\n') {
-        content.pop_back(); // Remove the last newline character
+        content.pop_back();
     }
     sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(content,APP_CONTENT,HTTP_SUCCESS, false,""));
 
 }
 
-
+//TODO: read according to the data length not by the '\0'
 void HTTPMessageHandler::handleFileWriteCommand(int socket_fd, std::string &filename,std::string &msg) {
     std::ofstream ofs(directory+filename);
     for(const char &x : msg){
@@ -137,14 +133,18 @@ void HTTPMessageHandler::handleFileWriteCommand(int socket_fd, std::string &file
 }
 
 
-
+//TODO: fix into one structure so that it will be created with parameters
 std::string HTTPMessageHandler::convertStringIntoResponse(std::string &msg,std::string contentType,std::string httpStatus,bool acceptEncoding,std::string encoding) {
-    char buffer[200];
+    char buffer[500];
     if (acceptEncoding){
-        sprintf(buffer,"HTTP/1.1 200 OK\r\n"
-                       "Content-Encoding:%s\r\n"
-                       "Content-Type: %s\r\n"
-                       "Content-Length: %zu\r\n\r\n%s\r\n",encoding.c_str(),contentType.c_str(),msg.size(),msg.c_str());
+        std::ostringstream oss;
+        oss << "HTTP/1.1 200 OK\r\n";
+        oss << "Content-Encoding: " << encoding << "\r\n";
+        oss << "Content-Type: " << contentType << "\r\n";
+        oss << "Content-Length: " << msg.size() << "\r\n";
+        oss << "\r\n";
+        oss << msg;
+        return oss.str();
     }
     else{
         if (contentType == APP_CONTENT){

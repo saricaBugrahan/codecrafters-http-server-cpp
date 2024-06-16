@@ -5,7 +5,7 @@
 #ifndef HTTP_SERVER_STARTER_CPP_HTTPMESSAGEHANDLER_H
 #define HTTP_SERVER_STARTER_CPP_HTTPMESSAGEHANDLER_H
 
-
+//TODO: Instead of making all of them static try to find a better way with interfaces.
 #include <string>
 #include <vector>
 #include <iostream>
