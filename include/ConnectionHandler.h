@@ -7,7 +7,12 @@
 
 
 enum MSG{OK=0,ERROR=1};
-
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <iostream>
+#include <vector>
+#include <unistd.h>
+#include "../include/HTTPMessageHandler.h"
 class ConnectionHandler {
 
 public:
@@ -16,7 +21,9 @@ public:
     int createServerSocket();
     int setServerSocketForReuse() const;
     int bindServerSocketToPort(int port) const;
-    int startListeningThePort();
+    int startListeningThePort() const;
+    void handleClient() const;
+    std::string getMessageFromSocket(int client_fd) const;
 };
 
 

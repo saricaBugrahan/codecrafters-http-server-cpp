@@ -55,6 +55,12 @@ build CMakeFiles/server.dir/src/ConnectionHandler.cpp.o: CXX_COMPILER__server_un
   OBJECT_DIR = CMakeFiles/server.dir
   OBJECT_FILE_DIR = CMakeFiles/server.dir/src
 
+build CMakeFiles/server.dir/src/HTTPMessageHandler.cpp.o: CXX_COMPILER__server_unscanned_Debug /home/bugra/Desktop/scripts/codecrafters-http-server-cpp/src/HTTPMessageHandler.cpp || cmake_object_order_depends_target_server
+  DEP_FILE = CMakeFiles/server.dir/src/HTTPMessageHandler.cpp.o.d
+  FLAGS = -g -std=gnu++23 -fdiagnostics-color=always
+  OBJECT_DIR = CMakeFiles/server.dir
+  OBJECT_FILE_DIR = CMakeFiles/server.dir/src
+
 build CMakeFiles/server.dir/src/server.cpp.o: CXX_COMPILER__server_unscanned_Debug /home/bugra/Desktop/scripts/codecrafters-http-server-cpp/src/server.cpp || cmake_object_order_depends_target_server
   DEP_FILE = CMakeFiles/server.dir/src/server.cpp.o.d
   FLAGS = -g -std=gnu++23 -fdiagnostics-color=always
@@ -69,7 +75,7 @@ build CMakeFiles/server.dir/src/server.cpp.o: CXX_COMPILER__server_unscanned_Deb
 #############################################
 # Link the executable server
 
-build server: CXX_EXECUTABLE_LINKER__server_Debug CMakeFiles/server.dir/src/ConnectionHandler.cpp.o CMakeFiles/server.dir/src/server.cpp.o
+build server: CXX_EXECUTABLE_LINKER__server_Debug CMakeFiles/server.dir/src/ConnectionHandler.cpp.o CMakeFiles/server.dir/src/HTTPMessageHandler.cpp.o CMakeFiles/server.dir/src/server.cpp.o
   FLAGS = -g
   OBJECT_DIR = CMakeFiles/server.dir
   POST_BUILD = :

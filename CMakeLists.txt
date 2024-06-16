@@ -11,6 +11,8 @@ find_package(Threads REQUIRED)
 
 add_executable(server ${SOURCE_FILES}
         src/ConnectionHandler.cpp
-        src/ConnectionHandler.h)
+        include/ConnectionHandler.h
+        src/HTTPMessageHandler.cpp
+        include/HTTPMessageHandler.h)
 
 target_link_libraries(server PRIVATE Threads::Threads)
