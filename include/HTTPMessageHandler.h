@@ -40,9 +40,10 @@ private:
      static void handleCreatedCommand(int socket_fd);
      static void handleEchoCommand(int socket_fd,string_vector &tokens);
      static void handleUserAgentCommand(int socket_fd,string_vector &tokens);
-     static std::string convertStringIntoResponse(std::string &msg,std::string contentType,std::string httpStatus);
      static void handleFileCommand(int socket_fd,string_vector &tokens);
-     static void handleFileWriteCommand(int socket_fd, std::string &filename,std::string &msg);
+    static std::string convertStringIntoResponse(std::string &msg,std::string contentType,
+                                                 std::string httpStatus,bool acceptEncoding,std::string encoding);
+    static void handleFileWriteCommand(int socket_fd, std::string &filename,std::string &msg);
 };
 
 

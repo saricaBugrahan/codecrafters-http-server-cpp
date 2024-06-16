@@ -111,28 +111,37 @@ void HTTPMessageHandler::handleFileWriteCommand(int socket_fd, std::string &file
         }
         ofs << x;
     }
-
-
     ofs.close();
     handleCreatedCommand(socket_fd);
-
-
 }
 
 
 
-
-std::string HTTPMessageHandler::convertStringIntoResponse(std::string &msg,std::string contentType,std::string httpStatus) {
+std::string HTTPMessageHandler::convertStringIntoResponse(std::string &msg,std::string contentType,std::string httpStatus,bool acceptEncoding,std::string encoding) {
     char buffer[200];
-    if (contentType == APP_CONTENT){
+    if (acceptEncoding){
         sprintf(buffer,"HTTP/1.1 200 OK\r\n"
-                       "Content-Type: %s\r\nContent-Length: %zu\r\n\r\n%s\r\n",contentType.c_str(),msg.size(),msg.c_str());
-    } else{
-        sprintf(buffer,"HTTP/1.1 200 OK\r\n"
-                       "Content-Type: %s\r\nContent-Length: %zu\r\n\r\n%s",contentType.c_str(),msg.size(),msg.c_str());
+                       "Content-Encoding:%s\r\n"
+                       "Content-Type: %s\r\n"
+                       "Content-Length: %zu\r\n\r\n%s\r\n",encoding.c_str(),contentType.c_str(),msg.size(),msg.c_str());
+    }
+    else{
+        if (contentType == APP_CONTENT){
+            sprintf(buffer,"HTTP/1.1 200 OK\r\n"
+                           "Content-Type: %s\r\nContent-Length: %zu\r\n\r\n%s\r\n",contentType.c_str(),msg.size(),msg.c_str());
+        } else{
+            sprintf(buffer,"HTTP/1.1 200 OK\r\n"
+                           "Content-Type: %s\r\nContent-Length: %zu\r\n\r\n%s",contentType.c_str(),msg.size(),msg.c_str());
+        }
     }
     return buffer;
 }
+
+void HTTPMessageHandler::hanldeEncodingResponse(std::string &msg) {
+
+
+}
+
 
 
 
