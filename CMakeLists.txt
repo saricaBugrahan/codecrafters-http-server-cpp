@@ -9,6 +9,8 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 find_package(Threads REQUIRED)
 
-add_executable(server ${SOURCE_FILES})
+add_executable(server ${SOURCE_FILES}
+        src/ConnectionHandler.cpp
+        src/ConnectionHandler.h)
 
 target_link_libraries(server PRIVATE Threads::Threads)
