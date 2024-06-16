@@ -52,7 +52,7 @@ void HTTPMessageHandler::handleResponseType(int socket_fd,const string_vector& t
         std::string validEncoding = getValidEncoding(encodings);
         if (!validEncoding.empty()){
             sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(
-                    validEncoding,"text/plain",HTTP_SUCCESS,true,validEncoding
+                    validEncoding,"text/plain",HTTP_SUCCESS,true,"1f8b08008c643b6602ff4bcbcf07002165738c03000000"
             ));
         }
         else{
