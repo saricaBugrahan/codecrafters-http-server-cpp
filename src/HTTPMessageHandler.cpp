@@ -31,16 +31,16 @@ int HTTPMessageHandler::sendMessageRespondToSocket(int socket, std::string buffe
 void HTTPMessageHandler::handleResponseType(int socket_fd,const string_vector& tokens) {
     string_vector splitRequestLine = splitMessageIntoTokens(tokens[0], " ");
     string_vector splitPath = splitMessageIntoTokens(splitRequestLine[1],"/");
-
-    for(const std::string& test: splitPath){
-        std::cout << "Test: " << test <<std::endl;
-    }
-
     if (splitPath[1].empty()){
         handleSuccesCommand(socket_fd);
     }
     else if(splitPath[1] == "echo"){
         handleEchoCommand(socket_fd,splitPath);
+    }
+    else if (splitPath[1] == "user-agent"){
+        string_vector splitUserAgent = splitMessageIntoTokens(tokens[2],"User-Agent: ");
+        handleUserAgentCommand(socket_fd,splitUserAgent);
+
     }
     else{
         handleErrorCommand(socket_fd);
@@ -58,6 +58,9 @@ void HTTPMessageHandler::handleEchoCommand(int socket_fd, string_vector &tokens)
 void HTTPMessageHandler::handleSuccesCommand(int socket_fd) {
     sendMessageRespondToSocket(socket_fd,HTTP_SUCCESS);
 }
+void HTTPMessageHandler::handleUserAgentCommand(int socket_fd, string_vector &tokens) {
+    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(tokens[1]));
+}
 
 std::string HTTPMessageHandler::convertStringIntoResponse(std::string &msg) {
     char buffer[100];
@@ -65,4 +68,8 @@ std::string HTTPMessageHandler::convertStringIntoResponse(std::string &msg) {
                    "Content-Type: text/plain\r\nContent-Length: %zu\r\n\r\n%s",msg.size(),msg.c_str());
     return buffer;
 }
+
+
+
+
 

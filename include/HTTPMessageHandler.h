@@ -35,6 +35,7 @@ private:
      static void handleErrorCommand(int socket_fd);
      static void handleSuccesCommand(int socket_fd);
      static void handleEchoCommand(int socket_fd,string_vector &tokens);
+     static void handleUserAgentCommand(int socket_fd,string_vector &tokens);
      static std::string convertStringIntoResponse(std::string &msg);
 };
 
