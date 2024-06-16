@@ -73,11 +73,18 @@ void ConnectionHandler::handleClient() const {
         std::cout << "Client connected\n";
     }
     std::string message = getMessageFromSocket(client_fd);
-    std::cout << "Message " << message << std::endl;
-    if (message.starts_with("GET / HTTP/1.1\r\n")){
-        send(client_fd,"HTTP/1.1 200 OK\r\n\r\n",sizeof("HTTP/1.1 200 OK\r\n\r\n"),0);
+    std::vector<std::string> tokens = HTTPMessageHandler::splitMessageIntoTokens(message,"\r\n");
+    HTTPMessageHandler::handleResponseType(client_fd,tokens);
+
+
+    /*if (message.starts_with("GET / HTTP/1.1\r\n")){
+        HTTPMessageHandler::sendMessageRespondToSocket(client_fd,
+                                                       const_cast<std::string &>(HTTPMessageHandler::HTTP_SUCCESS));
+        send(client_fd,HTTPMessageHandler::HTTP_SUCCESS.c_str(),sizeof(HTTPMessageHandler::HTTP_SUCCESS.size()),0);
     } else{
-        send(client_fd,"HTTP/1.1 404 Not Found\r\n\r\n",sizeof("HTTP/1.1 404 NOT FOUND\r\n\r\n"),0);
-    }
+        send(client_fd,HTTPMessageHandler::HTTP_NOT_FOUND.c_str(),sizeof(HTT),0);
+    }*/
+
+
     close(client_fd);
 }

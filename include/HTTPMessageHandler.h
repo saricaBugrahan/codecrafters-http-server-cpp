@@ -18,14 +18,24 @@
 #include <unistd.h>
 using string_vector = std::vector<std::string>;
 
+enum RESPONSE{NOT_FOUND,SUCCESS,ECHO};
+
+
 class HTTPMessageHandler {
 
 public:
-    const std::string HTTP_SUCCESS = "HTTP/1.1 200 OK\r\n\r\n";
-    const std::string HTTP_NOT_FOUND = "HTTP/1.1 404 NOT FOUND";
+    static const std::string HTTP_SUCCESS;
+    static const std::string HTTP_NOT_FOUND;
     HTTPMessageHandler() = default;
-    string_vector splitMessageIntoTokens(const std::string &message,std::string delim);
-    static int sendMessageToSocket(int socket,std::string &buffer);
+    static string_vector splitMessageIntoTokens(const std::string &message,const std::string& delim);
+
+    static void handleResponseType(int socket_fd,const string_vector& tokens);
+private:
+     static int sendMessageRespondToSocket(int socket, std::string buffer);
+     static void handleErrorCommand(int socket_fd);
+     static void handleSuccesCommand(int socket_fd);
+     static void handleEchoCommand(int socket_fd,string_vector &tokens);
+     static std::string convertStringIntoResponse(std::string &msg);
 };
 
 
