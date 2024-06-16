@@ -9,8 +9,11 @@ const std::string HTTPMessageHandler::HTTP_SUCCESS = "HTTP/1.1 200 OK\r\n\r\n";
 const std::string HTTPMessageHandler::CREATED = "HTTP/1.1 201 Created\r\n\r\n";
 const std::string HTTPMessageHandler::APP_CONTENT = "application/octet-stream";
 const std::string HTTPMessageHandler::TEXT_CONTENT = "text/plain";
-
 std::string HTTPMessageHandler::directory;
+string_vector HTTPMessageHandler::validEncodings = {"gzip", "deflate", "br"};
+
+
+
 string_vector HTTPMessageHandler::splitMessageIntoTokens(const std::string &message,const std::string& delim) {
     string_vector tokens;
     std::string token;
@@ -45,10 +48,11 @@ void HTTPMessageHandler::handleResponseType(int socket_fd,const string_vector& t
         std::cout << "İçeri girdi" << std::endl;
         string_vector encoding = splitMessageIntoTokens(tokens[2],"Accept-Encoding: ");
         std::cout << "encoding: " << encoding[1] << std::endl;
-        string_vector encodings = splitMessageIntoTokens(encoding[1],",");
-        if (!encoding.empty()){
+        string_vector encodings = splitMessageIntoTokens(encoding[1],", ");
+        std::string validEncoding = getValidEncoding(encodings);
+        if (!validEncoding.empty()){
             sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(
-                    encoding[1],"text/plain",HTTP_SUCCESS,true,encoding[1]
+                    validEncoding,"text/plain",HTTP_SUCCESS,true,validEncoding
             ));
         }
         else{
@@ -154,15 +158,14 @@ std::string HTTPMessageHandler::convertStringIntoResponse(std::string &msg,std::
     return buffer;
 }
 
-std::string HTTPMessageHandler::getValidEncoding(string_vector &encodings) {
-    for(const std::string &encoding: encodings){
-        if (std::find(validEncodings.begin(),validEncodings.end(),encoding) != validEncodings.end()){
+std::string HTTPMessageHandler::getValidEncoding(const string_vector &encodings) {
+    for (const std::string &encoding : encodings) {
+        if (encoding == "gzip") {
             return encoding;
         }
     }
     return "";
 }
-
 
 
 

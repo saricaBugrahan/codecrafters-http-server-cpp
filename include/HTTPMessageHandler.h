@@ -19,9 +19,7 @@
 #include <fstream>
 #include <iostream>
 using string_vector = std::vector<std::string>;
-
 class HTTPMessageHandler {
-
 public:
     static const std::string HTTP_SUCCESS;
     static const std::string HTTP_NOT_FOUND;
@@ -29,12 +27,13 @@ public:
     static const std::string TEXT_CONTENT;
     static const std::string CREATED;
     static std::string directory;
-    static string_vector validEncodings = {"gzip"};
+
     HTTPMessageHandler() = default;
     static string_vector splitMessageIntoTokens(const std::string &message,const std::string& delim);
 
     static void handleResponseType(int socket_fd,const string_vector& tokens);
 private:
+    static string_vector validEncodings;
      static int sendMessageRespondToSocket(int socket, std::string buffer);
      static void handleErrorCommand(int socket_fd);
      static void handleSuccesCommand(int socket_fd);
@@ -45,7 +44,7 @@ private:
     static std::string convertStringIntoResponse(std::string &msg,std::string contentType,
                                                  std::string httpStatus,bool acceptEncoding,std::string encoding);
     static void handleFileWriteCommand(int socket_fd, std::string &filename,std::string &msg);
-    static std::string getValidEncoding(string_vector &encodings);
+    static std::string getValidEncoding(const string_vector &encodings);
 };
 
 
