@@ -16,16 +16,18 @@
 #include <iostream>
 #include <vector>
 #include <unistd.h>
+#include <fstream>
+#include <iostream>
 using string_vector = std::vector<std::string>;
-
-enum RESPONSE{NOT_FOUND,SUCCESS,ECHO};
-
 
 class HTTPMessageHandler {
 
 public:
     static const std::string HTTP_SUCCESS;
     static const std::string HTTP_NOT_FOUND;
+    static const std::string APP_CONTENT;
+    static const std::string TEXT_CONTENT;
+    static std::string directory;
     HTTPMessageHandler() = default;
     static string_vector splitMessageIntoTokens(const std::string &message,const std::string& delim);
 
@@ -36,7 +38,8 @@ private:
      static void handleSuccesCommand(int socket_fd);
      static void handleEchoCommand(int socket_fd,string_vector &tokens);
      static void handleUserAgentCommand(int socket_fd,string_vector &tokens);
-     static std::string convertStringIntoResponse(std::string &msg);
+     static std::string convertStringIntoResponse(std::string &msg,std::string contentType);
+     static void handleFileCommand(int socket_fd,string_vector &tokens);
 };
 
 
