@@ -8,7 +8,7 @@ const std::string HTTPMessageHandler::HTTP_NOT_FOUND = "HTTP/1.1 404 Not Found\r
 const std::string HTTPMessageHandler::HTTP_SUCCESS = "HTTP/1.1 200 OK\r\n\r\n";
 const std::string HTTPMessageHandler::APP_CONTENT = "application/octet-stream";
 const std::string HTTPMessageHandler::TEXT_CONTENT = "text/plain";
-std::string HTTPMessageHandler::directory = "";
+std::string HTTPMessageHandler::directory;
 string_vector HTTPMessageHandler::splitMessageIntoTokens(const std::string &message,const std::string& delim) {
     string_vector tokens;
     std::string token;
@@ -22,7 +22,6 @@ string_vector HTTPMessageHandler::splitMessageIntoTokens(const std::string &mess
 }
 
 int HTTPMessageHandler::sendMessageRespondToSocket(int socket, std::string buffer) {
-    std::cout << buffer << std::endl;
     ssize_t result = send(socket,buffer.c_str(),buffer.size(),0);
     if (result < 0){
         std::cerr << "Cannot send the message to the socket" << std::endl;
