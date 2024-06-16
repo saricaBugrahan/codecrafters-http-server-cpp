@@ -41,9 +41,24 @@ void HTTPMessageHandler::handleResponseType(int socket_fd,const string_vector& t
     if (splitPath[1].empty()){
         handleSuccesCommand(socket_fd);
     }
-    else if(splitPath[1] == "echo"){
+    else if(splitPath[1] == "echo" && tokens[2].starts_with("Accept-Encoding:")){
+        std::cout << "İçeri girdi" << std::endl;
+        string_vector encoding = splitMessageIntoTokens(tokens[2],"Accept-Encoding: ");
+        std::cout << "encoding: " << encoding[1] << std::endl;
+        if (encoding[1] == "gzip"){
+            sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(
+                    encoding[1],"text/plain",HTTP_SUCCESS,true,encoding[1]
+            ));
+        } else{
+            sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(
+                    encoding[1],"text/plain",HTTP_SUCCESS, false,encoding[1]
+            ));
+        }
+    }
+    else if (splitPath[1] == "echo"){
         handleEchoCommand(socket_fd,splitPath);
     }
+
     else if (splitPath[1] == "user-agent"){
         string_vector splitUserAgent = splitMessageIntoTokens(tokens[2],"User-Agent: ");
         handleUserAgentCommand(socket_fd,splitUserAgent);
@@ -67,14 +82,14 @@ void HTTPMessageHandler::handleErrorCommand(int socket_fd) {
 }
 
 void HTTPMessageHandler::handleEchoCommand(int socket_fd, string_vector &tokens) {
-    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(tokens[2],TEXT_CONTENT,HTTP_SUCCESS));
+    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(tokens[2],TEXT_CONTENT,HTTP_SUCCESS,false,""));
 }
 
 void HTTPMessageHandler::handleSuccesCommand(int socket_fd) {
     sendMessageRespondToSocket(socket_fd,HTTP_SUCCESS);
 }
 void HTTPMessageHandler::handleUserAgentCommand(int socket_fd, string_vector &tokens) {
-    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(tokens[1],TEXT_CONTENT,HTTP_SUCCESS));
+    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(tokens[1],TEXT_CONTENT,HTTP_SUCCESS, false,""));
 }
 
 void HTTPMessageHandler::handleCreatedCommand(int socket_fd) {
@@ -98,7 +113,7 @@ void HTTPMessageHandler::handleFileCommand(int socket_fd, string_vector &tokens)
     if (!content.empty() && content.back() == '\n') {
         content.pop_back(); // Remove the last newline character
     }
-    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(content,APP_CONTENT,HTTP_SUCCESS));
+    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(content,APP_CONTENT,HTTP_SUCCESS, false,""));
 
 }
 
@@ -136,13 +151,6 @@ std::string HTTPMessageHandler::convertStringIntoResponse(std::string &msg,std::
     }
     return buffer;
 }
-
-void HTTPMessageHandler::hanldeEncodingResponse(std::string &msg) {
-
-
-}
-
-
 
 
 
