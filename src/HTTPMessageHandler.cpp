@@ -45,11 +45,13 @@ void HTTPMessageHandler::handleResponseType(int socket_fd,const string_vector& t
         std::cout << "İçeri girdi" << std::endl;
         string_vector encoding = splitMessageIntoTokens(tokens[2],"Accept-Encoding: ");
         std::cout << "encoding: " << encoding[1] << std::endl;
-        if (encoding[1] == "gzip"){
+        string_vector encodings = splitMessageIntoTokens(encoding[1],",");
+        if (!encoding.empty()){
             sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(
                     encoding[1],"text/plain",HTTP_SUCCESS,true,encoding[1]
             ));
-        } else{
+        }
+        else{
             sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(
                     encoding[1],"text/plain",HTTP_SUCCESS, false,encoding[1]
             ));
@@ -150,6 +152,15 @@ std::string HTTPMessageHandler::convertStringIntoResponse(std::string &msg,std::
         }
     }
     return buffer;
+}
+
+std::string HTTPMessageHandler::getValidEncoding(string_vector &encodings) {
+    for(const std::string &encoding: encodings){
+        if (std::find(validEncodings.begin(),validEncodings.end(),encoding) != validEncodings.end()){
+            return encoding;
+        }
+    }
+    return "";
 }
 
 

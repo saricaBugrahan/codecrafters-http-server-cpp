@@ -29,6 +29,7 @@ public:
     static const std::string TEXT_CONTENT;
     static const std::string CREATED;
     static std::string directory;
+    static string_vector validEncodings = {"gzip"};
     HTTPMessageHandler() = default;
     static string_vector splitMessageIntoTokens(const std::string &message,const std::string& delim);
 
@@ -44,6 +45,7 @@ private:
     static std::string convertStringIntoResponse(std::string &msg,std::string contentType,
                                                  std::string httpStatus,bool acceptEncoding,std::string encoding);
     static void handleFileWriteCommand(int socket_fd, std::string &filename,std::string &msg);
+    static std::string getValidEncoding(string_vector &encodings);
 };
 
 
