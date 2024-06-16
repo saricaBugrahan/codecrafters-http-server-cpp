@@ -27,6 +27,7 @@ public:
     static const std::string HTTP_NOT_FOUND;
     static const std::string APP_CONTENT;
     static const std::string TEXT_CONTENT;
+    static const std::string CREATED;
     static std::string directory;
     HTTPMessageHandler() = default;
     static string_vector splitMessageIntoTokens(const std::string &message,const std::string& delim);
@@ -36,10 +37,12 @@ private:
      static int sendMessageRespondToSocket(int socket, std::string buffer);
      static void handleErrorCommand(int socket_fd);
      static void handleSuccesCommand(int socket_fd);
+     static void handleCreatedCommand(int socket_fd);
      static void handleEchoCommand(int socket_fd,string_vector &tokens);
      static void handleUserAgentCommand(int socket_fd,string_vector &tokens);
-     static std::string convertStringIntoResponse(std::string &msg,std::string contentType);
+     static std::string convertStringIntoResponse(std::string &msg,std::string contentType,std::string httpStatus);
      static void handleFileCommand(int socket_fd,string_vector &tokens);
+     static void handleFileWriteCommand(int socket_fd, std::string &filename,std::string &msg);
 };
 
 

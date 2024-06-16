@@ -6,8 +6,10 @@
 
 const std::string HTTPMessageHandler::HTTP_NOT_FOUND = "HTTP/1.1 404 Not Found\r\n\r\n";
 const std::string HTTPMessageHandler::HTTP_SUCCESS = "HTTP/1.1 200 OK\r\n\r\n";
+const std::string HTTPMessageHandler::CREATED = "HTTP/1.1 201 Created\r\n\r\n";
 const std::string HTTPMessageHandler::APP_CONTENT = "application/octet-stream";
 const std::string HTTPMessageHandler::TEXT_CONTENT = "text/plain";
+
 std::string HTTPMessageHandler::directory;
 string_vector HTTPMessageHandler::splitMessageIntoTokens(const std::string &message,const std::string& delim) {
     string_vector tokens;
@@ -32,6 +34,9 @@ int HTTPMessageHandler::sendMessageRespondToSocket(int socket, std::string buffe
 
 void HTTPMessageHandler::handleResponseType(int socket_fd,const string_vector& tokens) {
     string_vector splitRequestLine = splitMessageIntoTokens(tokens[0], " ");
+    for(const std::string& x : tokens){
+        std::cout << "Text: " << x << std::endl;
+    }
     string_vector splitPath = splitMessageIntoTokens(splitRequestLine[1],"/");
     if (splitPath[1].empty()){
         handleSuccesCommand(socket_fd);
@@ -43,9 +48,15 @@ void HTTPMessageHandler::handleResponseType(int socket_fd,const string_vector& t
         string_vector splitUserAgent = splitMessageIntoTokens(tokens[2],"User-Agent: ");
         handleUserAgentCommand(socket_fd,splitUserAgent);
     }
-    else if(splitPath[1] == "files"){
+    else if(splitPath[1] == "files" && splitRequestLine[0] == "GET"){
         handleFileCommand(socket_fd,splitPath);
     }
+    else if(splitPath[1] == "files" && splitRequestLine[0] == "POST"){
+        std::cout << "Filename: "<<tokens[4] << std::endl;
+        std::cout << "Message: "<<splitPath[2] << std::endl;
+        handleFileWriteCommand(socket_fd, splitPath[2],const_cast<std::string &>(tokens[4]));
+    }
+
     else{
         handleErrorCommand(socket_fd);
     }
@@ -56,15 +67,20 @@ void HTTPMessageHandler::handleErrorCommand(int socket_fd) {
 }
 
 void HTTPMessageHandler::handleEchoCommand(int socket_fd, string_vector &tokens) {
-    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(tokens[2],TEXT_CONTENT));
+    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(tokens[2],TEXT_CONTENT,HTTP_SUCCESS));
 }
 
 void HTTPMessageHandler::handleSuccesCommand(int socket_fd) {
     sendMessageRespondToSocket(socket_fd,HTTP_SUCCESS);
 }
 void HTTPMessageHandler::handleUserAgentCommand(int socket_fd, string_vector &tokens) {
-    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(tokens[1],TEXT_CONTENT));
+    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(tokens[1],TEXT_CONTENT,HTTP_SUCCESS));
 }
+
+void HTTPMessageHandler::handleCreatedCommand(int socket_fd) {
+    sendMessageRespondToSocket(socket_fd,CREATED);
+}
+
 
 void HTTPMessageHandler::handleFileCommand(int socket_fd, string_vector &tokens) {
     std::ifstream ifs(directory+tokens[2]);
@@ -82,26 +98,42 @@ void HTTPMessageHandler::handleFileCommand(int socket_fd, string_vector &tokens)
     if (!content.empty() && content.back() == '\n') {
         content.pop_back(); // Remove the last newline character
     }
-    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(content,APP_CONTENT));
+    sendMessageRespondToSocket(socket_fd, convertStringIntoResponse(content,APP_CONTENT,HTTP_SUCCESS));
+
+}
+
+
+void HTTPMessageHandler::handleFileWriteCommand(int socket_fd, std::string &filename,std::string &msg) {
+    std::ofstream ofs(directory+filename);
+    for(const char &x : msg){
+        if (x == 0){
+            break;
+        }
+        ofs << x;
+    }
+
+
+    ofs.close();
+    handleCreatedCommand(socket_fd);
+
 
 }
 
 
 
 
-std::string HTTPMessageHandler::convertStringIntoResponse(std::string &msg,std::string contentType) {
+std::string HTTPMessageHandler::convertStringIntoResponse(std::string &msg,std::string contentType,std::string httpStatus) {
     char buffer[200];
     if (contentType == APP_CONTENT){
         sprintf(buffer,"HTTP/1.1 200 OK\r\n"
                        "Content-Type: %s\r\nContent-Length: %zu\r\n\r\n%s\r\n",contentType.c_str(),msg.size(),msg.c_str());
-
     } else{
         sprintf(buffer,"HTTP/1.1 200 OK\r\n"
                        "Content-Type: %s\r\nContent-Length: %zu\r\n\r\n%s",contentType.c_str(),msg.size(),msg.c_str());
-
     }
     return buffer;
 }
+
 
 
 
