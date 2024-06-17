@@ -16,6 +16,8 @@ add_executable(server ${SOURCE_FILES}
         src/HTTPMessageHandler.cpp
         include/HTTPMessageHandler.h
         src/GzipUtils.cpp
-        include/GzipUtils.h)
+        include/GzipUtils.h
+        src/HTTPMessage.cpp
+        include/HTTPMessage.h)
 
 target_link_libraries(server PRIVATE Threads::Threads ZLIB::ZLIB)

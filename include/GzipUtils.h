@@ -9,6 +9,5 @@
 #include <string>
 
 std::string gzip_compress(const std::string& data);
-std::string toHexString(const std::string& data);
 
 #endif //HTTP_SERVER_STARTER_CPP_GZIPUTILS_H

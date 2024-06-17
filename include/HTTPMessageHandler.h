@@ -18,7 +18,10 @@
 #include <unistd.h>
 #include <fstream>
 #include <iostream>
+
 using string_vector = std::vector<std::string>;
+
+
 class HTTPMessageHandler {
 public:
     static const std::string HTTP_SUCCESS;
@@ -36,13 +39,13 @@ private:
     static string_vector validEncodings;
      static int sendMessageRespondToSocket(int socket, std::string buffer);
      static void handleErrorCommand(int socket_fd);
-     static void handleSuccesCommand(int socket_fd);
+     static void handleSuccessCommand(int socket_fd);
      static void handleCreatedCommand(int socket_fd);
      static void handleEchoCommand(int socket_fd,string_vector &tokens);
      static void handleUserAgentCommand(int socket_fd,string_vector &tokens);
      static void handleFileCommand(int socket_fd,string_vector &tokens);
-    static std::string convertStringIntoResponse(std::string &msg,std::string contentType,
-                                                 std::string httpStatus,bool acceptEncoding,std::string encoding);
+    static std::string convertStringIntoResponse(std::basic_string<char> msg, std::string contentType,
+                                                 std::string httpStatus, bool acceptEncoding, std::string encoding);
     static void handleFileWriteCommand(int socket_fd, std::string &filename,std::string &msg);
     static std::string getValidEncoding(const string_vector &encodings);
 };
